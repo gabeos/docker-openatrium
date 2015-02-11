@@ -2,6 +2,10 @@
 
 This repo contains a working repository for Phase2's OpenAtrium, based on the Drupal CMS.
 
+## Set-up Notes
+
+For drupal/OA install procedure, you must access http://site-name.tld/install.php directly. Drupal won't redirect http://site-name.tld to the install page directly, because settings.php has been modified with database settings.
+
 ## OS
 
 Based on CentOS 7. entrypoint.sh runs 'setenforce 0'
