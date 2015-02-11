@@ -14,10 +14,28 @@ MariaDB or MySQL DB setup is automatic through docker linking with appropriate e
 
 I think it's set up correctly, but haven't really checked.
 
-## PHP-FPM
+## Cron
 
-Included as an install, but it isn't set up in Apache. Planned, maybe, PRs very welcome.
+Untested cron with crontab installed.
 
-## Fig
+## Supervisor
 
-Includes fig.yml file for automatic set-up with MySQL. 
+Supervisor configured to run SSH, Memcache, and Apache, but logging doesn't work correctly with 'docker logs' or 'fig logs'
+
+Any thoughts?
+
+## Other things included in image
+
+* Drush
+* PHP-FPM :: Apache isn't configured to use this, but maybe at some point. PR's welcome!
+* git :: should probably remove this..
+
+
+## TODO
+* Clean yum cache and logs in Dockerfile
+* Set up PHP-FPM
+* Set up supervisor logging correctly
+* Set up volumes
+** What is useful for this? Just Files? entire sites directory? 
+* Set up PHP configuration variables with environment, e.g. max_execution_time, memory_limit
+* SSH Root access should be revoked, need user/pass generation/env vars.
