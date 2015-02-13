@@ -68,6 +68,9 @@ ENV APACHE_PID_FILE /var/run/apache2/apache2.pid
 ## MEMCACHED
 ENV MEMCACHED_MEM 1024
 
+# Apache Module Cfg
+RUN a2enmod rewrite
+
 # Ports
 EXPOSE 22 80 443
 
