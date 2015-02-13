@@ -1,66 +1,21 @@
 
-FROM centos:7
+FROM phusion/baseimage
 MAINTAINER gabriel schubiner <gabriel.schubiner@gmail.com>
 
-
-
 # Installation
-RUN yum -y upgrade; yum clean all
-
-RUN rpm --import http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-7 \
-    && rpm --import http://fedora.mirrors.pair.com/epel/RPM-GPG-KEY-EPEL-7 \
-    && rpm -Uvh http://fedora.mirrors.pair.com/epel/7/x86_64/e/epel-release-7-5.noarch.rpm 
-
-RUN yum -y install epel-release
-
-RUN yum --setopt=tsflags=nodocs -y install \
-    httpd \
-    mod_ssl \
-    php \
-    php-pdo \
-#    php-pgsql \
-    php-mysql \
-    php-imap \
-    php-cli \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    apache2 \
+    libapache2-mod-php5 \
+    php5 \
+    php5-mysqlnd \
+    php5-imap \
+    php5-cli \
     php-pear \
-    php-fpm \
     php-apc \
-    php-gd \
-    php-mbstring \
-    tar \
-    wget \
-    git \
-    openssh-server \
-    openssh-clients \
-    sudo \
-    pwgen \
+    php5-gd \
+    php5-memcache \
     python-pip \
-    memcached \
-    php-pecl-memcache
-
-
-# Networking
-RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
-    && echo "NETWORKING=yes" > /etc/sysconfig/network
-
-# SSH
-RUN rm -f /etc/ssh/ssh_host_ecdsa_key /etc/ssh/ssh_host_rsa_key \
-    && ssh-keygen -q -N "" -t dsa -f /etc/ssh/ssh_host_ecdsa_key \
-    && ssh-keygen -q -N "" -t rsa -f /etc/ssh/ssh_host_rsa_key 
-
-RUN sed -i \
-    -e 's/^#UseDNS yes/UseDNS no/g' \
-    -e 's/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g' \
-    /etc/ssh/sshd_config
-
-# -e 's/^#UsePAM no/UsePAM no/g' \
-# -e 's/^UsePAM yes/#UsePAM yes/g' \
-# -e 's/^PasswordAuthentication yes/PasswordAuthentication no/g' \
-
-### Set Root Pass
-ADD ./assets/scripts/set_root_pass.sh /opt/set_root_pass.sh
-
-RUN chmod +x /opt/set_root_pass.sh
+    memcached
 
 ### SUDO
 RUN sed -i 's/^# %wheel\tALL=(ALL)\tALL/%wheel\tALL=(ALL)\tALL/g' /etc/sudoers
@@ -70,29 +25,55 @@ RUN sed -i \
     -e 's/^memory_limit.*$/memory_limit = 1024M/g' \
     -e 's/^max_execution_time.*$/max_execution_time = 900/g' \
     -e 's/^session.save_handler.*$/session.save_handler = memcache/g' \
-    /etc/php.ini
-
-# Library Installation
-RUN pip install supervisor supervisor-stdout
+    /etc/php5/apache2/php.ini
 
 RUN pear channel-discover pear.drush.org
 
 RUN pear install drush/drush
 
 # Open Atrium
-RUN wget -qO- http://ftp.drupal.org/files/projects/openatrium-7.x-2.30-rc3-core.tar.gz | tar xz -C /var/www/html --strip-components=1 
+RUN rm -f /var/www/html/*
+RUN curl http://ftp.drupal.org/files/projects/openatrium-7.x-2.30-rc3-core.tar.gz | tar xz -C /var/www/html --strip-components=1 
 
-RUN chown -R root:apache /var/www/html/*
-RUN chown -R apache:apache /var/www/html/sites/default
-RUN chown -R apache:apache /var/www/html/sites/all
+RUN chown -R root:www-data /var/www/html/*
+RUN chown -R www-data:www-data /var/www/html/sites/default
+RUN chown -R  www-data:www-data /var/www/html/sites/all
+
+# SSH
+RUN rm -f /etc/service/sshd/down
+ 
+# Cron
+ADD ./assets/openatrium.cron.sh /etc/cron.daily/openatrium
+RUN chmod +x /etc/cron.daily/openatrium
+
+# Services
+RUN mkdir /etc/service/memcached /etc/service/apache
+ADD ./assets/services/memcached.sh /etc/service/memcached/run
+ADD ./assets/services/apache.sh /etc/service/apache/run
+RUN chmod -R +x /etc/service/
+
+# Init script
+ADD ./assets/init.sh /etc/my_init.d/10_init.sh
+RUN chmod -R +x /etc/my_init.d/
+
+# Default ENV vars
+## Apache
+ENV APACHE_RUN_USER www-data
+ENV APACHE_RUN_GROUP www-data
+ENV APACHE_LOG_DIR /var/log/apache2
+ENV APACHE_LOCK_DIR /var/lock/apache2
+ENV APACHE_RUN_DIR /var/run/apache2
+ENV APACHE_PID_FILE /var/run/apache2/apache2.pid
+
+## MEMCACHED
+ENV MEMCACHED_MEM 1024
+
+# Ports
 EXPOSE 22 80 443
 
-# Supervisor
-ADD ./assets/supervisor/supervisord.conf /etc/supervisord.conf
-ADD ./assets/crontab /etc/crontab
-ADD ./assets/scripts/entrypoint.sh /entrypoint.sh
+# Volumes
+VOLUME [ "/data/ssh" "/etc/container_environment"]
 
-RUN chmod +x /entrypoint.sh
+CMD ["/sbin/my_init"]
 
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["-c" "/etc/supervisord.conf"]
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

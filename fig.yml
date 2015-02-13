@@ -1,0 +1,17 @@
+mariadb:
+    image: mariadb:latest
+    environment:
+        - MYSQL_ROOT_PASSWORD=<root_password>
+        - MYSQL_USER=openatrium
+        - MYSQL_PASSWORD=<openatrium_db_password>
+        - MYSQL_DATABASE=openatrium
+openatrium:
+    image: hollowearthradio/openatrium:0.01
+    links:
+        - mariadb:mariadb
+    ports:
+        - "80:80"
+    volumes:
+        # This path should contain id_rsa.pub, 
+        # which will be used for root ssh access
+        - /path/to/ssh/keys:/data/ssh:ro 
