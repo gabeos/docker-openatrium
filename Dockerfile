@@ -13,69 +13,77 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     php-pear \
     php-apc \
     php5-gd \
-    php5-memcache \
+    php5-memcached \
     python-pip \
     memcached
 
-### SUDO
-RUN sed -i 's/^# %wheel\tALL=(ALL)\tALL/%wheel\tALL=(ALL)\tALL/g' /etc/sudoers
+# SSH
+RUN rm -f /etc/service/sshd/down
+
+# Cron
+ADD ./assets/openatrium.cron.sh /etc/cron.hourly/openatrium
+RUN chmod +x /etc/cron.hourly/openatrium
+
+# Apache Cfg
+RUN rm -f /etc/apache2/sites-enabled/*
+ADD assets/apache.openatrium.conf /etc/apache2/sites-available/000-openatrium.conf
+RUN ln -s /etc/apache2/sites-available/000-openatrium.conf /etc/apache2/sites-enabled/000-openatrium.conf
+RUN a2enmod rewrite
 
 # PHP Config
-RUN sed -i \
-    -e 's/^memory_limit.*$/memory_limit = 1024M/g' \
-    -e 's/^max_execution_time.*$/max_execution_time = 900/g' \
-    -e 's/^session.save_handler.*$/session.save_handler = memcache/g' \
-    /etc/php5/apache2/php.ini
+ENV PHP_MEMORY_LIMIT 1024M
+ENV PHP_MAX_EXECUTION_TIME 900
+ENV PHP_SESSION_SAVE_CACHE memcached
+RUN sed -i -e 's/^;session.save_path/session.save_path/g' /etc/php5/apache2/php.ini
+ADD ./assets/update_php_vars.sh /usr/bin/update_php_vars.sh
+RUN chmod +x /usr/bin/update_php_vars.sh && \
+    update_php_vars.sh
 
+# Default ENV vars
+## Apache
+RUN echo "www-data" >/etc/container_environment/APACHE_RUN_GROUP && \
+    echo "www-data" >/etc/container_environment/APACHE_RUN_USER && \
+    echo "/var/run/apache2/apache2.pid" >/etc/container_environment/APACHE_PID_FILE && \
+    echo "/var/run/apache2" >/etc/container_environment/APACHE_RUN_DIR && \
+    echo "/var/lock/apache2" >/etc/container_environment/APACHE_LOCK_DIR && \
+    echo "/var/log/apache2" >/etc/container_environment/APACHE_LOG_DIR
+
+
+## MEMCACHED
+ENV MEMCACHED_MEM 1024
+
+## INIT
+ENV NO_FILE_PERMISSION_RESTORE false
+
+## MIGRATE SITES
+ENV MIGRATE_SITES_TO false
+
+# Drush install
 RUN pear channel-discover pear.drush.org
 
 RUN pear install drush/drush
 
 # Open Atrium
 RUN rm -f /var/www/html/*
-RUN curl http://ftp.drupal.org/files/projects/openatrium-7.x-2.30-rc3-core.tar.gz | tar xz -C /var/www/html --strip-components=1 
-
-RUN chown -R root:www-data /var/www/html/*
-RUN chown -R www-data:www-data /var/www/html/sites/default
-RUN chown -R  www-data:www-data /var/www/html/sites/all
-
-# SSH
-RUN rm -f /etc/service/sshd/down
- 
-# Cron
-ADD ./assets/openatrium.cron.sh /etc/cron.daily/openatrium
-RUN chmod +x /etc/cron.daily/openatrium
+RUN curl http://ftp.drupal.org/files/projects/openatrium-7.x-2.30-core.tar.gz | tar xz -C /var/www/html --strip-components=1 
 
 # Services
 RUN mkdir /etc/service/memcached /etc/service/apache
 ADD ./assets/services/memcached.sh /etc/service/memcached/run
 ADD ./assets/services/apache.sh /etc/service/apache/run
+ADD ./assets/services/apache-log-forwarder.sh /etc/service/apache-log-forwarder/run
 RUN chmod -R +x /etc/service/
 
 # Init script
 ADD ./assets/init.sh /etc/my_init.d/10_init.sh
 RUN chmod -R +x /etc/my_init.d/
 
-# Default ENV vars
-## Apache
-ENV APACHE_RUN_USER www-data
-ENV APACHE_RUN_GROUP www-data
-ENV APACHE_LOG_DIR /var/log/apache2
-ENV APACHE_LOCK_DIR /var/lock/apache2
-ENV APACHE_RUN_DIR /var/run/apache2
-ENV APACHE_PID_FILE /var/run/apache2/apache2.pid
-
-## MEMCACHED
-ENV MEMCACHED_MEM 1024
-
-# Apache Module Cfg
-RUN a2enmod rewrite
-
 # Ports
 EXPOSE 22 80 443
 
 # Volumes
-VOLUME [ "/data/ssh" "/etc/container_environment"]
+#VOLUME /data/ssh
+VOLUME /var/www/html/sites
 
 CMD ["/sbin/my_init"]
 
