@@ -58,6 +58,14 @@ ENV NO_FILE_PERMISSION_RESTORE false
 ## MIGRATE SITES
 ENV MIGRATE_SITES_TO false
 
+# Site Installation ENV
+ENV ACCOUNT_NAME admin
+ENV ACCOUNT_PASS insecurepass
+ENV ACCOUNT_MAIL admin@example.com
+ENV SITE_NAME Open Atrium
+ENV SITE_MAIL admin@example.com
+ENV INSTALL_SITE true
+
 # Drush install
 RUN pear channel-discover pear.drush.org
 

@@ -145,6 +145,14 @@ function check_memcache {
     fi
 }
 
+function install_site {
+    drush site-install openatrium \
+        --account-name="$ACCOUNT_NAME" \
+        --account-pass="$ACCOUNT_PASS" \
+        --account-mail="$ACCOUNT_MAIL \
+        --site-name="$SITE_NAME" \
+        --site-mail="$SITE_MAIL" 
+}
 
 function upkeep_fns {
     echo "Updating apache2 php.ini"
