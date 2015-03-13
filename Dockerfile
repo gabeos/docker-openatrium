@@ -38,8 +38,9 @@ RUN sed -i \
     -e 's/^;session.save_path/session.save_path/g' \
     -e "s!^;sendmail_path =.*\$!sendmail_path = $PHP_SENDMAIL_PATH!g" \
     /etc/php5/apache2/php.ini
-ADD ./assets/update_php_vars.sh /usr/bin/update_php_vars.sh
-RUN chmod +x /usr/bin/update_php_vars.sh && update_php_vars.sh
+ADD ./assets/update_php_vars.sh /usr/bin/
+RUN chmod +x /usr/bin/update_php_vars.sh 
+RUN update_php_vars.sh
 RUN php5enmod imap
 
 # Default ENV vars

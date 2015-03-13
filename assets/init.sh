@@ -73,6 +73,7 @@ function init_db {
     echo "Initializing database."
     # is a mysql or postgresql database linked?
     # requires that the mysql/mariadb containers have exposed port
+	env
     if [[ -n $MYSQL_PORT_3306_TCP_ADDR ]]; then
         DB_TYPE=mysql
         DB_HOST=${DB_HOST:-${MYSQL_PORT_3306_TCP_ADDR}}
@@ -188,9 +189,9 @@ function check_ssh {
     echo "Checking SSH."
     if [[ $DISABLE_SSH == false ]]; then 
         echo "Enabling SSH"
-        rm -f /etc/service/ssh/down
+        rm -f /etc/service/sshd/down
     else
-        touch /etc/service/ssh/down
+        touch /etc/service/sshd/down
     fi
 }
 
