@@ -95,7 +95,7 @@ RUN pear install drush/drush
 
 # Open Atrium
 RUN rm -f /var/www/html/*
-RUN curl http://ftp.drupal.org/files/projects/openatrium-7.x-2.30-core.tar.gz | tar xz -C /var/www/html --strip-components=1 
+RUN curl http://ftp.drupal.org/files/projects/openatrium-7.x-2.33-core.tar.gz | tar xz -C /var/www/html --strip-components=1 
 
 # Services
 RUN mkdir /etc/service/memcached /etc/service/apache
