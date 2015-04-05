@@ -24,7 +24,6 @@ The relevant variables (with default settings) are:
 - SITE_MAIL admin@example.com
 - INSTALL_SITE true
 
-
 ### Manual Installation
 For standard drupal/OA install procedure, you must access http://site-name.tld/install.php directly. Drupal won't redirect http://site-name.tld to the install page directly, because settings.php has been modified with database settings (assuming you linked an appropriate MariaDB/MySQL container. you did, right?)
 
@@ -123,13 +122,16 @@ At least that's the idea. Nobody's tested it yet.
   This tells init.sh not to fix permissions on the /var/www/html directory tree to drupal standard settings. Change to "true" to turn this off if you disagree with the permissions. Actual settings can be found in /etc/my_init.d/init.sh, but for a better description, they follow these guidelines:
 - https://www.drupal.org/node/244924 
 
-### INSTALL SITE
+### INSTALL SITE / DRUPAL
 - ACCOUNT_NAME admin
 - ACCOUNT_PASS insecurepass
 - ACCOUNT_MAIL admin@example.com
 - SITE_NAME Open Atrium
 - SITE_MAIL admin@example.com
 - INSTALL_SITE true
+
+- BASE_URL '' :: Sets `$base_url` in settings.php. If you're planning on using SSL/TLS, you'll want to set this to https://domain.tld 
+                 Note that there should be no trailing '/'. This will prevent mixed security warnings, and browsers may not load your sites resources--images, etc.
 
 ### EMAIL
 

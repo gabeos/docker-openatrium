@@ -6,7 +6,9 @@ MAINTAINER gabriel schubiner <gabriel.schubiner@gmail.com>
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apache2 \
     libapache2-mod-php5 \
+    build-essential \
     php5 \
+    php5-dev \
     php5-mysqlnd \
     php5-imap \
     php5-cli \
@@ -25,8 +27,8 @@ RUN chmod +x /etc/cron.hourly/openatrium
 
 # Apache Cfg
 RUN rm -f /etc/apache2/sites-enabled/*
-ADD ./assets/apache.openatrium.conf /etc/apache2/sites-available/000-openatrium.conf
-RUN ln -s /etc/apache2/sites-available/000-openatrium.conf /etc/apache2/sites-enabled/000-openatrium.conf
+ADD assets/apache.openatrium.conf /etc/apache2/sites-available/
+RUN ln -s /etc/apache2/sites-available/apache.openatrium.conf /etc/apache2/sites-enabled/openatrium.conf
 RUN a2enmod rewrite
 
 # PHP Config
@@ -42,6 +44,9 @@ ADD ./assets/update_php_vars.sh /usr/bin/
 RUN chmod +x /usr/bin/update_php_vars.sh 
 RUN update_php_vars.sh
 RUN php5enmod imap
+RUN pecl install -Z uploadprogress && \
+    echo 'extension=uploadprogress.so' >/etc/php5/mods-available/uploadprogress.ini && \
+    php5enmod uploadprogress
 
 # Default ENV vars
 ## Apache

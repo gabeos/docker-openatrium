@@ -185,6 +185,14 @@ EOF
     popd
 }
 
+function set_site_base {
+    if [[ -n $BASE_URL ]]; then
+        echo "Setting site_base_name in settings.php"
+        sed -i -e 's/# $base_url .*/$base_url = '"$BASE_URL"'/' /var/www/html/sites/default/setttings.php
+        echo "Done"
+    fi
+}
+
 function check_ssh {
     echo "Checking SSH."
     if [[ $DISABLE_SSH == false ]]; then 
@@ -221,6 +229,7 @@ function bootstrap {
     else 
         echo "Either INSTALL_SITE (=$INSTALL_SITE) or AUTO_DB_SETTINGS (=$AUTO_DB_SETTINGS) is set to disallow automatic install."
     fi
+    set_site_base
     echo "Repairing Permissions to Drupal default"
     restore_permissions
     echo "Done bootstrapping container. Noted with /data/.bootstrap"
