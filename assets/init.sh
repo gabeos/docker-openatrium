@@ -38,7 +38,7 @@ function init_install_permissions {
     # will be restored on reboot via restore_permissions
     echo "Initializing installation permissions"
     pushd "$WEB_ROOT"
-    chown -R root:www-data ./
+    chown -R www-data:www-data ./
     chmod 666 sites/default/settings.php
     chmod -R a+w sites/default
     popd
@@ -54,7 +54,7 @@ function disable_webcron {
 function restore_permissions {
     echo "Restoring permissions to default Drupal perms"
     pushd "$WEB_ROOT"
-    chown -R root:www-data .
+    chown -R www-data:www-data .
     find . -type d -exec chmod 750 '{}' \;
     find . -type f -exec chmod 740 '{}' \;
     
@@ -64,7 +64,7 @@ function restore_permissions {
     find ./default/files -type f -exec chmod 660 '{}' \;
 
     popd
-    find . -type f -iname '.htaccess' -exec chown root:www-data '{}' \;
+    find . -type f -iname '.htaccess' -exec chown www-data:www-data '{}' \;
     find . -type f -iname '.htaccess' -exec chmod 660 '{}' \;
     popd
 }
