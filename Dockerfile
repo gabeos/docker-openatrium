@@ -19,7 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python-pip \
     mysql-client \
     ssmtp \
-    memcached
+    memcached \
+	drush
 
 # Cron
 ADD ./assets/openatrium.cron.sh /etc/cron.hourly/openatrium
@@ -92,11 +93,6 @@ ADD ./assets/update_ssmtp.sh /usr/bin/update_ssmtp.sh
 RUN rm -f /etc/ssmtp/ssmtp.conf
 ADD ./assets/ssmtp.conf /etc/ssmtp/ssmtp.conf
 RUN chmod +x /usr/bin/update_ssmtp.sh && update_ssmtp.sh
-
-# Drush install
-RUN pear channel-discover pear.drush.org
-
-RUN pear install drush/drush
 
 # Open Atrium
 RUN rm -f /var/www/html/*
