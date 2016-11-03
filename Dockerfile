@@ -32,6 +32,10 @@ ADD assets/apache.openatrium.conf /etc/apache2/sites-available/
 RUN ln -s /etc/apache2/sites-available/apache.openatrium.conf /etc/apache2/sites-enabled/openatrium.conf
 RUN a2enmod rewrite
 
+# Symlink for drush
+RUN mkdir /usr/local/drush
+RUN ln -s /usr/bin/drush /usr/local/drush/drush
+
 # PHP Config
 ENV PHP_MEMORY_LIMIT 1024M
 ENV PHP_MAX_EXECUTION_TIME 900
