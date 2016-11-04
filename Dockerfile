@@ -100,7 +100,7 @@ RUN chmod +x /usr/bin/update_ssmtp.sh && update_ssmtp.sh
 
 # Open Atrium
 RUN rm -f /var/www/html/*
-RUN curl https://ftp.drupal.org/files/projects/openatrium-7.x-2.69-core.tar.gz | tar xz -C /var/www/html --strip-components=1 
+RUN curl https://ftp.drupal.org/files/projects/openatrium-7.x-2.611-core.tar.gz | tar xz -C /var/www/html --strip-components=1 
 
 # Services
 RUN mkdir /etc/service/memcached /etc/service/apache
