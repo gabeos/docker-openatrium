@@ -112,6 +112,7 @@ RUN chmod -R +x /etc/service/
 # Init script
 ADD ./assets/init.sh /etc/my_init.d/10_init.sh
 RUN chmod -R +x /etc/my_init.d/
+RUN chown www-data /var/www/html/sites/default/files/
 
 # Ports
 EXPOSE 22 80 443
