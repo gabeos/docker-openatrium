@@ -100,7 +100,7 @@ RUN chmod +x /usr/bin/update_ssmtp.sh && update_ssmtp.sh
 
 # Open Atrium
 RUN rm -f /var/www/html/*
-RUN curl https://ftp.drupal.org/files/projects/openatrium-7.x-2.611-core.tar.gz | tar xz -C /var/www/html --strip-components=1 
+RUN curl https://ftp.drupal.org/files/projects/openatrium-7.x-2.612-core.tar.gz | tar xz -C /var/www/html --strip-components=1 
 
 # Services
 RUN mkdir /etc/service/memcached /etc/service/apache
@@ -112,7 +112,6 @@ RUN chmod -R +x /etc/service/
 # Init script
 ADD ./assets/init.sh /etc/my_init.d/10_init.sh
 RUN chmod -R +x /etc/my_init.d/
-RUN chown www-data /var/www/html/sites/default/files/
 
 # Ports
 EXPOSE 22 80 443
