@@ -1,4 +1,4 @@
-
+# Pinned to 0.9.18 (Ubuntu 14.04 LTS) to enable PHP5
 FROM phusion/baseimage:0.9.18
 MAINTAINER gabriel schubiner <gabriel.schubiner@gmail.com>
 
@@ -100,7 +100,7 @@ RUN chmod +x /usr/bin/update_ssmtp.sh && update_ssmtp.sh
 
 # Open Atrium
 RUN rm -f /var/www/html/*
-RUN curl https://ftp.drupal.org/files/projects/openatrium-7.x-2.612-core.tar.gz | tar xz -C /var/www/html --strip-components=1 
+RUN curl https://ftp.drupal.org/files/projects/openatrium-7.x-2.614-core.tar.gz | tar xz -C /var/www/html --strip-components=1 
 
 # Services
 RUN mkdir /etc/service/memcached /etc/service/apache
