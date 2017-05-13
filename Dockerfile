@@ -96,7 +96,8 @@ ENV SSMTP_AUTH_METHOD LOGIN
 ADD ./assets/update_ssmtp.sh /usr/bin/update_ssmtp.sh
 RUN rm -f /etc/ssmtp/ssmtp.conf
 ADD ./assets/ssmtp.conf /etc/ssmtp/ssmtp.conf
-RUN chmod +x /usr/bin/update_ssmtp.sh && update_ssmtp.sh
+RUN chmod +x /usr/bin/update_ssmtp.sh 
+RUN /usr/bin/update_ssmtp.sh
 
 # Open Atrium
 RUN rm -f /var/www/html/*

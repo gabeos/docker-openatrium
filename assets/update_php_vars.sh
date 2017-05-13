@@ -2,6 +2,7 @@
 
 
 sed -i \
+    -e "s/^expose_php.*\$/expose_php = Off/g" \
     -e "s/^memory_limit.*\$/memory_limit = $PHP_MEMORY_LIMIT/g" \
     -e "s/^max_execution_time.*\$/max_execution_time = $PHP_MAX_EXECUTION_TIME/g" \
     -e "s/^session.save_handler.*\$/session.save_handler = $PHP_SESSION_SAVE_CACHE/g" \
