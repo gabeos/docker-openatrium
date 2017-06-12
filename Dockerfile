@@ -27,6 +27,7 @@ ADD ./assets/openatrium.cron.sh /etc/cron.hourly/openatrium
 RUN chmod +x /etc/cron.hourly/openatrium
 
 # Apache Cfg
+ADD assets/apache.security.conf /etc/apache2/conf.d/
 RUN rm -f /etc/apache2/sites-enabled/*
 ADD assets/apache.openatrium.conf /etc/apache2/sites-available/
 RUN ln -s /etc/apache2/sites-available/apache.openatrium.conf /etc/apache2/sites-enabled/openatrium.conf
