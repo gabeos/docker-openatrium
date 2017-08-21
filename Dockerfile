@@ -1,21 +1,21 @@
 # Pinned to 0.9.18 (Ubuntu 14.04 LTS) to enable PHP5
-FROM phusion/baseimage:0.9.18
+FROM phusion/baseimage
 MAINTAINER gabriel schubiner <gabriel.schubiner@gmail.com>
 
 # Installation
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apache2 \
-    libapache2-mod-php5 \
+    libapache2-mod-php \
     build-essential \
-    php5 \
-    php5-dev \
-    php5-mysqlnd \
-    php5-imap \
-    php5-cli \
+    php \
+    php-dev \
+    php-mysqlnd \
+    php-imap \
+    php-cli \
     php-pear \
-    php-apc \
-    php5-gd \
-    php5-memcached \
+    php-apcu \
+    php-gd \
+    php-memcached \
     python-pip \
     mysql-client \
     ssmtp \
@@ -45,14 +45,14 @@ ENV PHP_SENDMAIL_PATH /usr/sbin/ssmtp -t
 RUN sed -i \
     -e 's/^;session.save_path/session.save_path/g' \
     -e "s!^;sendmail_path =.*\$!sendmail_path = $PHP_SENDMAIL_PATH!g" \
-    /etc/php5/apache2/php.ini
+    /etc/php/7.0/apache2/php.ini
 ADD ./assets/update_php_vars.sh /usr/bin/
 RUN chmod +x /usr/bin/update_php_vars.sh 
 RUN update_php_vars.sh
-RUN php5enmod imap
+RUN phpenmod imap
 RUN pecl install -Z uploadprogress && \
-    echo 'extension=uploadprogress.so' >/etc/php5/mods-available/uploadprogress.ini && \
-    php5enmod uploadprogress
+    echo 'extension=uploadprogress.so' >/etc/php/7.0/mods-available/uploadprogress.ini && \
+    phpenmod uploadprogress
 
 # Default ENV vars
 ## Apache
