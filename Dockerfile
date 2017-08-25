@@ -1,6 +1,5 @@
-# Pinned to 0.9.18 (Ubuntu 14.04 LTS) to enable PHP5
 FROM phusion/baseimage
-MAINTAINER gabriel schubiner <gabriel.schubiner@gmail.com>
+MAINTAINER Starchy Grant <starchy@gmail.com>
 
 # Installation
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -20,7 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     mysql-client \
     ssmtp \
     memcached \
-	drush
+    drush \
+    git
 
 # Cron
 ADD ./assets/openatrium.cron.sh /etc/cron.hourly/openatrium
@@ -50,9 +50,17 @@ ADD ./assets/update_php_vars.sh /usr/bin/
 RUN chmod +x /usr/bin/update_php_vars.sh 
 RUN update_php_vars.sh
 RUN phpenmod imap
-RUN pecl install -Z uploadprogress && \
-    echo 'extension=uploadprogress.so' >/etc/php/7.0/mods-available/uploadprogress.ini && \
-    phpenmod uploadprogress
+RUN cd /root \
+    && git clone https://github.com/Jan-E/uploadprogress.git \
+    && cd uploadprogress \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && echo 'extension=uploadprogress.so' >/etc/php/7.0/mods-available/uploadprogress.ini \
+    && phpenmod uploadprogress \
+    && cd \
+    && rm -rf /root/uploadprogress
 
 # Default ENV vars
 ## Apache
