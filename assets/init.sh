@@ -60,6 +60,7 @@ function restore_permissions {
     
     pushd sites
     find . -type d -name files -exec chmod 770 '{}' \;
+    find ./default/files -type d -exec chown -R www-data '{}' \;
     find ./default/files -type d -exec chmod 770 '{}' \;
     find ./default/files -type f -exec chmod 660 '{}' \;
 
