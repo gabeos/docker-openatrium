@@ -1,4 +1,3 @@
-# Pinned to 0.9.18 (Ubuntu 14.04 LTS) to enable PHP5
 FROM phusion/baseimage
 MAINTAINER gabriel schubiner <gabriel.schubiner@gmail.com>
 
@@ -116,7 +115,7 @@ ADD ./assets/init.sh /etc/my_init.d/10_init.sh
 RUN chmod -R +x /etc/my_init.d/
 
 # Ports
-EXPOSE 22 80 443
+EXPOSE 80 443
 
 # Volumes
 VOLUME /data
