@@ -1,4 +1,4 @@
-FROM phusion/baseimage
+FROM starchy/baseimage-docker
 MAINTAINER starchy grant <starchy@gmail.com>
 
 # Installation
