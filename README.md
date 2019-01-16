@@ -2,7 +2,7 @@
 
 This repo contains a working repository for Phase2's OpenAtrium, based on the Drupal CMS.
 
-## OpenAtrium - ver. 2.628
+## OpenAtrium - ver. 2.633
 
 OpenAtrium is a pretty rad Drupal distribution, supported by Phase2, that makes it pretty easy to set up very flexible intranets/community sites with out-of-the-box support for maintaining a hierarchy of 'spaces' that can each be customized with calendars, tasks, discussion boards, and file sharing. User groups, teams, permissions, etc. all well supported. 
 
@@ -177,7 +177,7 @@ Last Note: 99% of this image is relevant to any Drupal 7 distribution, so if you
 
 You'll want to change this line: 
 
-`RUN curl https://ftp.drupal.org/files/projects/openatrium-7.x-2.628-core.tar.gz | tar xz -C /var/www/html --strip-components=1 `
+`RUN curl https://ftp.drupal.org/files/projects/openatrium-7.x-2.633-core.tar.gz | tar xz -C /var/www/html --strip-components=1 `
 
 to 
 
