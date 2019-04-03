@@ -1,0 +1,26 @@
+openatrium:
+  image: starchy/openatrium # not currently on dockerhub
+  links:
+    - mariadb
+  environment:
+    DB_NAME: openatrium
+    INSTALL_SITE: "false" # set to true for automatic install on first run only
+    MIGRATE_SITES_TO: /sites
+  volumes:
+    - ./sites:/sites
+    - ./ssmtp.conf:/etc/ssmtp/ssmtp.conf:ro
+  ports:
+    - "80:80"
+  restart: always
+
+mariadb:
+  image: mariadb:10.2
+  environment:
+    MYSQL_DATABASE: openatrium
+    MYSQL_USER: openatrium
+    MYSQL_PASSWORD: changeme
+    MYSQL_ROOT_PASSWORD: changemetoo
+  volumes:
+    - ./mysql:/var/lib/mysql
+  restart: always
+
