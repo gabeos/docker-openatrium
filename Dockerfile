@@ -112,8 +112,8 @@ RUN chmod +x /usr/bin/update_ssmtp.sh
 RUN /usr/bin/update_ssmtp.sh
 
 # Open Atrium
-ENV OATRIUM_DOWNLOAD_URL https://ftp.drupal.org/files/projects/openatrium-7.x-2.635-core.tar.gz
-ENV OATRIUM_DOWNLOAD_SHA256 61b3096dd2cca103f3b2c9e833abc2760b3b135c59239fc01433d529fe046ee8
+ENV OATRIUM_DOWNLOAD_URL https://ftp.drupal.org/files/projects/openatrium-7.x-2.641-core.tar.gz
+ENV OATRIUM_DOWNLOAD_SHA256 c8f3c9fa43fbc4032e248d549c2bec2d738c32db807dcbd008374b9be11aa0d7
 RUN rm -f /var/www/html/*
 RUN curl -fsS "$OATRIUM_DOWNLOAD_URL" -o oatrium.tar.gz \
   && echo "$OATRIUM_DOWNLOAD_SHA256 oatrium.tar.gz" | sha256sum -c - \
