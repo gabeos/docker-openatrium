@@ -1,35 +1,41 @@
-
-FROM phusion/baseimage
-MAINTAINER gabriel schubiner <gabriel.schubiner@gmail.com>
+FROM starchy/baseimage-docker
+MAINTAINER starchy grant <starchy@gmail.com>
 
 # Installation
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apache2 \
-    libapache2-mod-php5 \
+    libapache2-mod-php \
     build-essential \
-    php5 \
-    php5-dev \
-    php5-mysqlnd \
-    php5-imap \
-    php5-cli \
+    php \
+    php-dev \
+    php-mysqlnd \
+    php-imap \
+    php-cli \
     php-pear \
-    php-apc \
-    php5-gd \
-    php5-memcached \
+    php-apcu \
+    php-gd \
+    php-memcached \
     python-pip \
     mysql-client \
     ssmtp \
-    memcached
+    memcached \
+    drush \
+    git
 
 # Cron
 ADD ./assets/openatrium.cron.sh /etc/cron.hourly/openatrium
 RUN chmod +x /etc/cron.hourly/openatrium
 
 # Apache Cfg
+ADD assets/apache.security.conf /etc/apache2/conf.d/
 RUN rm -f /etc/apache2/sites-enabled/*
 ADD assets/apache.openatrium.conf /etc/apache2/sites-available/
 RUN ln -s /etc/apache2/sites-available/apache.openatrium.conf /etc/apache2/sites-enabled/openatrium.conf
 RUN a2enmod rewrite
+
+# Symlink for drush
+RUN mkdir /usr/local/drush
+RUN ln -s /usr/bin/drush /usr/local/drush/drush
 
 # PHP Config
 ENV PHP_MEMORY_LIMIT 1024M
@@ -39,14 +45,25 @@ ENV PHP_SENDMAIL_PATH /usr/sbin/ssmtp -t
 RUN sed -i \
     -e 's/^;session.save_path/session.save_path/g' \
     -e "s!^;sendmail_path =.*\$!sendmail_path = $PHP_SENDMAIL_PATH!g" \
-    /etc/php5/apache2/php.ini
+    /etc/php/7.0/apache2/php.ini
 ADD ./assets/update_php_vars.sh /usr/bin/
 RUN chmod +x /usr/bin/update_php_vars.sh 
 RUN update_php_vars.sh
-RUN php5enmod imap
-RUN pecl install -Z uploadprogress && \
-    echo 'extension=uploadprogress.so' >/etc/php5/mods-available/uploadprogress.ini && \
-    php5enmod uploadprogress
+RUN phpenmod imap
+
+# build uploadprogress from git for php7 compatibility
+RUN cd /root \
+    && git clone https://github.com/Jan-E/uploadprogress.git \
+    && cd uploadprogress \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && echo 'extension=uploadprogress.so' >/etc/php/7.0/mods-available/uploadprogress.ini \
+    && phpenmod uploadprogress \
+    && cd \
+    && rm -rf /root/uploadprogress
+
 
 # Default ENV vars
 ## Apache
@@ -91,16 +108,17 @@ ENV SSMTP_AUTH_METHOD LOGIN
 ADD ./assets/update_ssmtp.sh /usr/bin/update_ssmtp.sh
 RUN rm -f /etc/ssmtp/ssmtp.conf
 ADD ./assets/ssmtp.conf /etc/ssmtp/ssmtp.conf
-RUN chmod +x /usr/bin/update_ssmtp.sh && update_ssmtp.sh
-
-# Drush install
-RUN pear channel-discover pear.drush.org
-
-RUN pear install drush/drush
+RUN chmod +x /usr/bin/update_ssmtp.sh 
+RUN /usr/bin/update_ssmtp.sh
 
 # Open Atrium
+ENV OATRIUM_DOWNLOAD_URL https://ftp.drupal.org/files/projects/openatrium-7.x-2.644-core.tar.gz
+ENV OATRIUM_DOWNLOAD_SHA256 8373f6f186445705974f3fe00929d409f246d9f1ab6e101bfd22df03231fade6
 RUN rm -f /var/www/html/*
-RUN curl http://ftp.drupal.org/files/projects/openatrium-7.x-2.33-core.tar.gz | tar xz -C /var/www/html --strip-components=1 
+RUN curl -fsS "$OATRIUM_DOWNLOAD_URL" -o oatrium.tar.gz \
+  && echo "$OATRIUM_DOWNLOAD_SHA256 oatrium.tar.gz" | sha256sum -c - \
+  && tar -C /var/www/html -xzf oatrium.tar.gz --strip-components=1 \
+  && rm -f oatrium.tar.gz
 
 # Services
 RUN mkdir /etc/service/memcached /etc/service/apache
@@ -114,7 +132,7 @@ ADD ./assets/init.sh /etc/my_init.d/10_init.sh
 RUN chmod -R +x /etc/my_init.d/
 
 # Ports
-EXPOSE 22 80 443
+EXPOSE 80 443
 
 # Volumes
 VOLUME /data
